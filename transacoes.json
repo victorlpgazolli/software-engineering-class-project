@@ -1,0 +1,35 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nome": "Zanca"
+    },
+    {
+      "id": 2,
+      "nome": "Felipe"
+    }
+  ],
+  "emprestimos": [
+    {
+      "id": 1,
+      "nomeCredor": "João",
+      "nomeDevedor": "Maria",
+      "valor": 10,
+      "data": "2022-05-06T23:31:25.367Z"
+    },
+    {
+      "nomeDevedor": "felipe",
+      "nomeCredor": "santos",
+      "valor": "1000",
+      "data": "2022-05-06T23:31:25.367Z",
+      "id": 2
+    },
+    {
+      "nomeDevedor": "zanca",
+      "nomeCredor": "nari",
+      "valor": "100",
+      "data": "2022-05-06T23:31:25.367Z",
+      "id": 3
+    }
+  ]
+}
