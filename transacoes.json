@@ -2,34 +2,22 @@
   "usuarios": [
     {
       "id": 1,
-      "nome": "Zanca"
+      "nome": "Zanca",
+      "senha": "123"
     },
     {
       "id": 2,
-      "nome": "Felipe"
+      "nome": "Felipe",
+      "senha": "123"
     }
   ],
   "emprestimos": [
     {
-      "id": 1,
-      "nomeCredor": "João",
-      "nomeDevedor": "Maria",
-      "valor": 10,
-      "data": "2022-05-06T23:31:25.367Z"
-    },
-    {
-      "nomeDevedor": "felipe",
-      "nomeCredor": "santos",
-      "valor": "1000",
+      "nomeDevedor": "Felipe",
+      "nomeCredor": "Zanca",
+      "valor": "123",
       "data": "2022-05-06T23:31:25.367Z",
-      "id": 2
-    },
-    {
-      "nomeDevedor": "zanca",
-      "nomeCredor": "nari",
-      "valor": "100",
-      "data": "2022-05-06T23:31:25.367Z",
-      "id": 3
+      "id": 1
     }
   ]
 }
