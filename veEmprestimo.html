@@ -572,6 +572,7 @@
                 <td>${loan.nomeDevedor}</td>
                 <td>${loan.nomeCredor}</td>
                 <td>${loan.valor}</td>
+                <td>${loan.valorCorrigido}</td>
                 <td>${loan.data}</td>
                 <td>
                     <a  href="#modal" onclick="setAttributesInURL('${loan.id}')">
@@ -586,7 +587,7 @@
 
 </script>
 <script>
-  const deleteLoan = async (event) => {
+  const quitarEmprestimo = async (event) => {
     event.preventDefault();
 
     const [senhaCredor] = [
@@ -594,28 +595,48 @@
     ];
     const searchParams = new URLSearchParams(window.location.search);
     const loanId = searchParams.get("id")
-    const loan = await fetch(`http://localhost:3000/emprestimos/` + loanId, {
-      method: 'GET',
-    }).then(result => result.json());
-
-    const { nomeCredor } = loan;
-
-    const [credor = {}] = await fetch(`http://localhost:3000/usuarios/?nome=` + nomeCredor, {
-      method: 'GET',
-    }).then(result => result.json());
-
-    const isValidPassword = credor.senha === senhaCredor;
-    if (!isValidPassword) return;
-
-    const result = await fetch(`http://localhost:3000/emprestimos/` + loanId, {
-      method: 'DELETE',
+    try {
+      const {
+      status
+    } = await fetch(`http://localhost:3000/quitarEmprestimo/?emprestimoId=${loanId}&senhaCredor=${senhaCredor}`, {
+      method: "DELETE"
     });
-    await result.json();
-
-    window.location = window.location.pathname;
+    if(status === 200)  window.location = window.location.pathname;
+    } catch (error) {
+      console.log(error);
+    }
   }
 </script>
   <script>
+    const obterEmprestimoEntre = async ( nomeDevedor,nomeCredor) => {
+     try {
+       const paramsNames = {
+          nomeCredor,
+          nomeDevedor
+       }
+       if(!nomeCredor) delete paramsNames.nomeCredor;
+       if(!nomeDevedor) delete paramsNames.nomeDevedor;
+       const params = Object.entries(paramsNames).map(([key, value]) => `${key}=${value}`).join("&")
+       const url = `http://localhost:3000/emprestimos?${params}`
+      console.log(url);
+       const [
+        emprestimos,
+        valorCorrigidoPorEmprestimo
+       ] =await Promise.all([
+        fetch(url, {   method: 'GET',  }).then(result =>result.json()),
+        fetch(`http://localhost:3000/obterValorCorrigido`, {  method: 'GET',}).then(result =>result.json())
+       ]);
+
+      const emprestimosComValorCorrigido = emprestimos.map(emprestimo => {
+        emprestimo.valorCorrigido = valorCorrigidoPorEmprestimo[emprestimo.id].valorCorrigido.toFixed(2);
+        return emprestimo
+      }) ;
+
+      return emprestimos;
+     } catch (error) {
+       console.log(error);
+     }
+    }
     const searchLoan = async (event) => {
       event.preventDefault();
 
@@ -624,23 +645,16 @@
         document.getElementById("nomeCredor").value,
       ];
 
-      const result = await fetch(`http://localhost:3000/emprestimos?nomeCredor=${nomeCredor}&nomeDevedor=${nomeDevedor}`, {
-        method: 'GET',
-      });
-
-      const loans = await result.json();
-      printLoan(loans)
+      const emprestimos = await obterEmprestimoEntre(nomeDevedor,nomeCredor)
+      printLoan(emprestimos)
     }
 </script>
   <script>
     const loadLoans = async () => {
-      const response = await fetch("http://localhost:3000/emprestimos", {
-        method: 'GET',
-      });
-      const loans = await response.json();
-      printLoan(loans)
-                                    }
-                                    loadLoans();
+      const emprestimos = await obterEmprestimoEntre()
+      printLoan(emprestimos)
+    }
+    // loadLoans();
 
 </script>
 <script>
@@ -674,6 +688,7 @@
               <th>Devedor</th>
               <th>Credor</th>
               <th>Valor</th>
+              <th>Valor Corrigido</th>
               <th>Data</th>
               <th>Ação</th>
             </tr>
@@ -687,7 +702,7 @@
 
     <div class="modal-content">
       <a class="close" href="#" onclick="closeModal()">&times;</a>
-      <form class="checkout" onsubmit="deleteLoan(event)" id="delete-loan-form">
+      <form class="checkout" onsubmit="quitarEmprestimo(event)" id="delete-loan-form">
         <div class="checkout-header">
           <h1 class="checkout-title">
             Quitar emprestimo

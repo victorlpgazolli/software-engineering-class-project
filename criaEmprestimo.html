@@ -108,13 +108,7 @@ table {
   margin: 0 -1px;
 }
 
-/*
- * Copyright (c) 2013 Thibaut Courouble
- * http://www.cssflow.com
- *
- * Licensed under the MIT License:
- * https://www.opensource.org/licenses/mit-license.php
- */
+
 body {
   font: 13px/20px 'Lucida Grande', Verdana, sans-serif;
   color: #404040;
@@ -390,8 +384,10 @@ table tr:hover td {
             document.getElementById("value").value,
             document.getElementById("nomeCredor").value,
         ];
-
-        await fetch("http://localhost:3000/emprestimos", {
+        if(!nomeDevedor || !value || !nomeCredor) return;
+      const now = new Date()
+      const data = [now.getDate(), "0"+ now.getMonth(), now.getFullYear()].join("/")
+        await fetch("http://localhost:3000/cadastraEmprestimo", {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
@@ -401,7 +397,7 @@ table tr:hover td {
             nomeDevedor: nomeDevedor,
             nomeCredor: nomeCredor,
             valor: value,
-            data: "2022-05-06T23:31:25.367Z"
+            data: data
           })
         });
         window.location.reload()

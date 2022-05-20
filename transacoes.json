@@ -1,22 +1,64 @@
 {
+  "juros": {
+    "taxaDeJurosMensal": "0.01",
+    "taxaDeJurosDiario": "0.01"
+  },
   "usuarios": [
     {
       "id": 1,
-      "nome": "Zanca",
+      "nome": "Joao",
       "senha": "123"
     },
     {
       "id": 2,
-      "nome": "Felipe",
+      "nome": "Maria",
+      "senha": "123"
+    },
+    {
+      "id": 3,
+      "nome": "Antonio",
+      "senha": "123"
+    },
+    {
+      "id": 4,
+      "nome": "Jose",
       "senha": "123"
     }
   ],
   "emprestimos": [
     {
-      "nomeDevedor": "Felipe",
-      "nomeCredor": "Zanca",
-      "valor": "123",
-      "data": "2022-05-06T23:31:25.367Z",
+      "nomeDevedor": "Maria",
+      "nomeCredor": "Antonio",
+      "valor": "12",
+      "data": "04/09/2011",
+      "id": 2
+    },
+    {
+      "nomeDevedor": "Jose",
+      "nomeCredor": "Antonio",
+      "valor": "5",
+      "data": "04/09/2011",
+      "id": 3
+    },
+    {
+      "nomeDevedor": "Maria",
+      "nomeCredor": "Antonio",
+      "valor": "3",
+      "data": "05/09/2011",
+      "id": 4
+    },
+    {
+      "nomeDevedor": "Maria",
+      "nomeCredor": "Joao",
+      "valor": "18",
+      "data": "05/09/2011",
+      "id": 5
+    },
+    {
+      "nomeDevedor": "Maria",
+      "nomeCredor": "Joao",
+      "valor": "10",
+      "data": "03/09/2011",
       "id": 1
     }
   ]
