@@ -1,12 +1,14 @@
 const express = require('express')
 const cors = require('cors')
-const app = express()
 const path = require('path');
 const whitelist = {
     "http://localhost:8000": true,
     "http://localhost:3000": true,
 };
 
+const jsonServer = require('json-server');
+const { endOfToday, differenceInMonths, endOfMonth, differenceInDays } = require('date-fns');
+const { default: axios } = require('axios');
 const corsOptions = {
     origin: (origin, callback) => {
         const hasValidOrigin = !origin || whitelist[origin];
@@ -22,16 +24,12 @@ const corsOptions = {
 }
 
 
-app.use(cors(corsOptions));
 
-app.use(express.json());
-
-const jsonServer = require('json-server');
-const { endOfToday, differenceInMonths, endOfMonth, differenceInDays } = require('date-fns');
-const { default: axios } = require('axios');
 const server = jsonServer.create()
 const router = jsonServer.router('transacoes.json')
 const middlewares = jsonServer.defaults()
+server.use(cors(corsOptions));
+server.use(express.json());
 server.get('/cadastrar', function (req, res) {
     res.sendFile(path.join(__dirname, '/criaEmprestimo.html'));
 })
@@ -40,7 +38,6 @@ server.get('/', function (req, res) {
 })
 server.use(jsonServer.rewriter({
     '/obterEmprestimosEntre?nomeCredor=:nomeCredor&nomeDevedor=:nomeDevedor': '/emprestimos',
-    '/cadastraEmprestimo': '/emprestimos',
 }))
   
 server.delete('/quitarEmprestimo/', async function (req, res) {
@@ -48,10 +45,7 @@ server.delete('/quitarEmprestimo/', async function (req, res) {
         emprestimoId: loanId,
         senhaCredor
     } = req.query;
-    console.log({
-        loanId,
-senhaCredor
-    });
+
     try {
     
         const {
@@ -76,7 +70,51 @@ senhaCredor
         return res.status(500).json("Erro")
     }
 })
+const validaSenha = (senhaDigitada, senhaValida) => senhaDigitada === senhaValida;
 
+server.post('/cadastraEmprestimo', async function (req, res) {
+    try {
+        const {
+            senhaDoDevedor,
+            nomeDevedor,
+            nomeCredor,
+            valor,
+            data,
+        } = req.body
+        const {
+            data: usuarios
+        } = await axios.get(`http://localhost:3000/usuarios/?nome=${nomeCredor}&nome=${nomeDevedor}` );
+    
+        const [dadosCredor, dadosDevedor] = usuarios;
+        const hasValidUsers = !!dadosCredor && !!dadosDevedor;
+        if(!hasValidUsers) return res.status(404).json({
+            message: "Credor Ou Devedor não encontrado",
+            type: "invalid_user"
+        });
+    
+        const hasValidPassword = validaSenha(senhaDoDevedor, dadosDevedor?.senha);
+    
+        if(!hasValidPassword) return res.status(403).json({
+            message: "Senha do devedor errada",
+            type: "wrong_password"
+        });
+        const payload = {
+            senhaDoDevedor,
+            nomeDevedor,
+            nomeCredor,
+            valor,
+            data,
+        }
+        await axios.post(`http://localhost:3000/emprestimos/`, payload);
+    
+        return res.status(200).json(payload)
+    } catch (error) {
+        return res.status(500).json({
+            error: error.message
+        })
+    }
+
+})
 server.get('/obterValorCorrigido', async function (req, res) {
     const finalDoMes = endOfMonth(new Date());
 

@@ -5,6 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </head>
 <body>
     <style>
@@ -374,33 +378,37 @@ table tr:hover td {
 }
 
         </style>
-
 <script>
-    const sendLoan = async (event) => {
+
+    const cadastraEmprestimo = async (event) => {
         event.preventDefault();
 
-        const [nomeDevedor, value, nomeCredor] = [
+        const [nomeDevedor, valor, nomeCredor, senhaDoDevedor] = [
             document.getElementById("nomeDevedor").value,
             document.getElementById("value").value,
             document.getElementById("nomeCredor").value,
+            document.getElementById("senha").value,
         ];
-        if(!nomeDevedor || !value || !nomeCredor) return;
-      const now = new Date()
+        if(!nomeDevedor || !valor || !nomeCredor || !senhaDoDevedor) return;
+      const now = new Date();
       const data = [now.getDate(), "0"+ now.getMonth(), now.getFullYear()].join("/")
-        await fetch("http://localhost:3000/cadastraEmprestimo", {
+        const payload = {
+            senhaDoDevedor,
+            nomeDevedor,
+            nomeCredor,
+            valor,
+            data
+        };
+        const result = await fetch("http://localhost:3000/cadastraEmprestimo", {
           method: 'POST',
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({
-            nomeDevedor: nomeDevedor,
-            nomeCredor: nomeCredor,
-            valor: value,
-            data: data
-          })
-        });
-        window.location.reload()
+          body: JSON.stringify(payload)
+        }).then(result => result.json())
+
+        if(result.status  === 200) window.location.reload()
     }
 </script>
 <script>
@@ -426,7 +434,7 @@ table tr:hover td {
   loadLoans();
 
 </script>
-    <form class="checkout" onsubmit="sendLoan(event)" id="loan-form">
+    <form class="checkout" onsubmit="cadastraEmprestimo(event)" id="loan-form">
         <div class="checkout-header">
           <h1 class="checkout-title">
             Emprestimos
@@ -436,6 +444,7 @@ table tr:hover td {
           <input type="text" id="nomeDevedor" class="checkout-input checkout-name" placeholder="Nome do devedor" autofocus>
           <input type="text" id="nomeCredor" class="checkout-input checkout-name" placeholder="Nome do credor" >
           <input type="text" id="value" class="checkout-input checkout-exp" placeholder="Valor">
+          <input type="text" id="senha" class="checkout-input checkout-name" placeholder="Senha do credor">
         </p>
          <p>
           <input type="submit" value="Confirmar empréstimo" class="checkout-btn">
@@ -456,6 +465,5 @@ table tr:hover td {
         
         </table>
       </div>
-
 </body>
 </html>
