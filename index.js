@@ -61,6 +61,7 @@ server.delete('/quitarEmprestimo/', async function (req, res) {
         const isValidPassword = credor.senha === senhaCredor;
         if (!isValidPassword) return res.status(403).json("Acesso bloqueado, senha errada amigo");
     
+        await axios.post(`http://localhost:3000/registraLog/`, loan);
         await axios.delete(`http://localhost:3000/emprestimos/` + loanId);
     
     
@@ -72,6 +73,15 @@ server.delete('/quitarEmprestimo/', async function (req, res) {
 })
 const validaSenha = (senhaDigitada, senhaValida) => senhaDigitada === senhaValida;
 
+server.post('/registraLog', async function (req, res) {
+    const loan = {
+        ...req.body,
+        dataDeletado: new Date().toISOString(),
+    };
+    delete loan.id;
+    await axios.post(`http://localhost:3000/logs/`, loan);
+    res.json("ok")
+})
 server.post('/cadastraEmprestimo', async function (req, res) {
     try {
         const {
