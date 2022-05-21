@@ -628,7 +628,7 @@
        ]);
 
       const emprestimosComValorCorrigido = emprestimos.map(emprestimo => {
-        emprestimo.valorCorrigido = valorCorrigidoPorEmprestimo[emprestimo.id].valorCorrigido.toFixed(2);
+        emprestimo.valorCorrigido = valorCorrigidoPorEmprestimo[emprestimo.id].valorCorrigido?.toFixed?.(2);
         return emprestimo
       }) ;
 

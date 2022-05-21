@@ -61,5 +61,15 @@
       "data": "03/09/2011",
       "id": 1
     }
+  ],
+  "logs": [
+    {
+      "nomeDevedor": "Maria",
+      "nomeCredor": "Joao",
+      "valor": "10",
+      "data": "03/09/2011",
+      "id": 1,
+      "dataDeletado": "2022-05-21T00:37:29.584Z"
+    }
   ]
 }

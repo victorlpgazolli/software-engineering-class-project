@@ -39,11 +39,19 @@ server.get('/', function (req, res) {
 server.use(jsonServer.rewriter({
     '/obterEmprestimosEntre?nomeCredor=:nomeCredor&nomeDevedor=:nomeDevedor': '/emprestimos',
 }))
-  
+server.post('/registraLog', async function (req, res) {
+    const loan = {
+        ...req.body,
+        dataDeletado: new Date().toISOString(),
+    };
+    delete loan.id;
+    axios.post(`http://localhost:3000/logs/`, loan);
+    res.json("ok")
+})
 server.delete('/quitarEmprestimo/', async function (req, res) {
     const {
         emprestimoId: loanId,
-        senhaCredor
+        senhaCredor: senhaInserida
     } = req.query;
 
     try {
@@ -58,30 +66,25 @@ server.delete('/quitarEmprestimo/', async function (req, res) {
             data: usuarios
         } = await axios.get(`http://localhost:3000/usuarios/?nome=` + nomeCredor)
         const [credor] = usuarios
-        const isValidPassword = credor.senha === senhaCredor;
-        if (!isValidPassword) return res.status(403).json("Acesso bloqueado, senha errada amigo");
+        const senhaValida = credor?.senha
+
+        const validaSenha  = (senha) => senha === senhaValida;
+
+        const isValidPassword = validaSenha(senhaInserida);
     
+        if (!isValidPassword) return res.status(403).json("Acesso bloqueado, senha errada amigo");
         await axios.post(`http://localhost:3000/registraLog/`, loan);
         await axios.delete(`http://localhost:3000/emprestimos/` + loanId);
     
     
         return res.status(200).json("ok")
     } catch (error) {
-        console.log(error);
-        return res.status(500).json("Erro")
+        console.log(error.message);
+        return res.status(500).json(error.message)
     }
 })
-const validaSenha = (senhaDigitada, senhaValida) => senhaDigitada === senhaValida;
 
-server.post('/registraLog', async function (req, res) {
-    const loan = {
-        ...req.body,
-        dataDeletado: new Date().toISOString(),
-    };
-    delete loan.id;
-    await axios.post(`http://localhost:3000/logs/`, loan);
-    res.json("ok")
-})
+
 server.post('/cadastraEmprestimo', async function (req, res) {
     try {
         const {
@@ -101,8 +104,11 @@ server.post('/cadastraEmprestimo', async function (req, res) {
             message: "Credor Ou Devedor não encontrado",
             type: "invalid_user"
         });
-    
-        const hasValidPassword = validaSenha(senhaDoDevedor, dadosDevedor?.senha);
+        const senhaValida = dadosDevedor?.senha
+
+        const validaSenha  = (senhaInserida) => senhaInserida === senhaValida;
+
+        const hasValidPassword = validaSenha(senhaDoDevedor);
     
         if(!hasValidPassword) return res.status(403).json({
             message: "Senha do devedor errada",
@@ -119,6 +125,7 @@ server.post('/cadastraEmprestimo', async function (req, res) {
     
         return res.status(200).json(payload)
     } catch (error) {
+        console.log(error.message);
         return res.status(500).json({
             error: error.message
         })
@@ -174,5 +181,3 @@ server.use(router)
 server.listen(3000, () => {
     console.log('JSON Server is running')
 })
-
-
