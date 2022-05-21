@@ -45,8 +45,9 @@ server.post('/registraLog', async function (req, res) {
         dataDeletado: new Date().toISOString(),
     };
     delete loan.id;
-    axios.post(`http://localhost:3000/logs/`, loan);
-    res.json("ok")
+
+    await axios.post(`http://localhost:3000/logs/`, loan);
+    return res.json("ok")
 })
 server.delete('/quitarEmprestimo/', async function (req, res) {
     const {
